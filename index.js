@@ -11,7 +11,7 @@ export default class ImageDropAndPaste {
 
 	/* handle image drop event
 	*/
-	handleDrop (e) {
+	handleDrop(e) {
 		e.preventDefault()
 		if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
 			if (document.caretRangeFromPoint) {
@@ -21,9 +21,12 @@ export default class ImageDropAndPaste {
 					selection.setBaseAndExtent(range.startContainer, range.startOffset, range.startContainer, range.startOffset)
 				}
 			}
-			this.readFiles(e.dataTransfer.files, (dataUrl, type) => {
+			this.readFiles(e.dataTransfer.files, (dataUrl, type, file) => {
 				if (typeof this.options.handler === 'function') {
-					this.options.handler(dataUrl, type)
+					var Editor = this.quill;
+					var range = Editor.getSelection();
+					var cursorLocation = range.index;
+					this.options.handler(dataUrl, type, file, Editor, cursorLocation)
 				} else {
 					this.insert.call(this, dataUrl, type)
 				}
@@ -33,11 +36,14 @@ export default class ImageDropAndPaste {
 
 	/* handle image paste event
 	*/
-	handlePaste (e) {
+	handlePaste(e) {
 		if (e.clipboardData && e.clipboardData.items && e.clipboardData.items.length) {
-			this.readFiles(e.clipboardData.items, (dataUrl, type) => {
+			this.readFiles(e.clipboardData.items, (dataUrl, type, file) => {
 				if (typeof this.options.handler === 'function') {
-					this.options.handler(dataUrl, type)
+					var Editor = this.quill;
+					var range = Editor.getSelection();
+					var cursorLocation = range.index;
+					this.options.handler(dataUrl, type, file, Editor, cursorLocation)
 				} else {
 					this.insert(dataUrl, type)
 				}
@@ -47,14 +53,14 @@ export default class ImageDropAndPaste {
 
 	/* read the files
 	*/
-	readFiles (files, callback, e) {
+	readFiles(files, callback, e) {
 		[].forEach.call(files, file => {
 			var type = file.type
 			if (!type.match(/^image\/(gif|jpe?g|a?png|svg|webp|bmp)/i)) return
 			e.preventDefault()
 			const reader = new FileReader()
 			reader.onload = (e) => {
-				callback(e.target.result, type)
+				callback(e.target.result, type, file)
 			}
 			const blob = file.getAsFile ? file.getAsFile() : file
 			if (blob instanceof Blob) reader.readAsDataURL(blob)
@@ -63,7 +69,7 @@ export default class ImageDropAndPaste {
 
 	/* insert into the editor
 	*/
-	insert (dataUrl, type) {
+	insert(dataUrl, type) {
 		const index = (this.quill.getSelection() || {}).index || this.quill.getLength()
 		this.quill.insertEmbed(index, 'image', dataUrl, 'user')
 	}

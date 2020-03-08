@@ -44,8 +44,9 @@ const quill = new Quill('#editor-container', {
 * Do something to our dropped or pasted image
 * @param.imageDataUrl - image's base64 url
 * @param.type - image's mime type
+* @param.file - File Object
 */
-function imageHandler(imageDataUrl, type) {
+function imageHandler(imageDataUrl, type, file) {
   // give a default mime type if the type was null
   if (!type) type = 'image/png'
 
