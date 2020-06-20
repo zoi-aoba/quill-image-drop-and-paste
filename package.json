@@ -1,5 +1,5 @@
 {
-  "name": "quill-image-drop-and-paste",
+  "name": "quill-image-drop-and-paste-zoi",
   "version": "1.0.4",
   "description": "A quill editor module for drop and paste image, with a callback hook before insert image into the editor",
   "main": "index.js",
